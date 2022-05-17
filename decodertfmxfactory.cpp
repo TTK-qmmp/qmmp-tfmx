@@ -22,6 +22,7 @@ DecoderProperties DecoderTFMXFactory::properties() const
     properties.description = "Final Music System Tracker Module File";
     properties.protocols << "file" << "tfmx";
     properties.noInput = true;
+    properties.hasAbout = true;
     return properties;
 }
 
