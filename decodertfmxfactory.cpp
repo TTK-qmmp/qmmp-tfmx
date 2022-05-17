@@ -84,9 +84,9 @@ void DecoderTFMXFactory::showSettings(QWidget *parent)
 
 void DecoderTFMXFactory::showAbout(QWidget *parent)
 {
-    QMessageBox::about (parent, tr("About TFMX Reader Plugin"),
-                        tr("Qmmp TFMX Reader Plugin")+"\n"+
-                        tr("Written by: Greedysky <greedysky@163.com>"));
+    QMessageBox::about(parent, tr("About TFMX Reader Plugin"),
+                       tr("Qmmp TFMX Reader Plugin") + "\n" +
+                       tr("Written by: Greedysky <greedysky@163.com>"));
 }
 
 QString DecoderTFMXFactory::translation() const
