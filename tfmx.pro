@@ -21,5 +21,4 @@ INCLUDEPATH += $$PWD/libtfmx
 unix {
     target.path = $$PLUGIN_DIR/Input
     INSTALLS += target
-    QMAKE_CLEAN = $$PLUGINS_PREFIX/Input/libtfmx.so
 }
