@@ -1,5 +1,8 @@
 include($$PWD/../../plugins.pri)
 
+QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CFLAGS += -std=gnu11
+
 TARGET = $$PLUGINS_PREFIX/Input/tfmx
 
 HEADERS += decodertfmxfactory.h \
@@ -21,4 +24,8 @@ INCLUDEPATH += $$PWD/libtfmx
 unix {
     target.path = $$PLUGIN_DIR/Input
     INSTALLS += target
+}
+
+win32 {
+    LIBS += -lws2_32
 }
