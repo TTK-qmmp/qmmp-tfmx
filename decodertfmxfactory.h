@@ -39,7 +39,6 @@ public:
     virtual void showAbout(QWidget *parent) override final;
     virtual QString translation() const override final;
 
-
 };
 
 #endif
