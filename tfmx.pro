@@ -1,9 +1,5 @@
-include($$PWD/../../plugins.pri)
-
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS += -std=gnu11
-
-TARGET = $$PLUGINS_PREFIX/Input/tfmx
 
 HEADERS += decodertfmxfactory.h \
            decoder_tfmx.h \
@@ -21,11 +17,31 @@ SOURCES += decodertfmxfactory.cpp \
 
 INCLUDEPATH += $$PWD/libtfmx
 
-unix {
-    target.path = $$PLUGIN_DIR/Input
-    INSTALLS += target
-}
+#CONFIG += BUILD_PLUGIN_INSIDE
+contains(CONFIG, BUILD_PLUGIN_INSIDE){
+    include($$PWD/../../plugins.pri)
+    TARGET = $$PLUGINS_PREFIX/Input/tfmx
 
-win32 {
-    LIBS += -lws2_32
+    unix{
+        target.path = $$PLUGIN_DIR/Input
+        INSTALLS += target
+    }
+
+    win32{
+        LIBS += -lws2_32
+    }
+}else{
+    CONFIG += warn_off plugin lib thread link_pkgconfig c++11
+    TEMPLATE = lib
+
+    unix{
+        PKGCONFIG += qmmp-1
+
+        PLUGIN_DIR = $$system(pkg-config qmmp-1 --variable=plugindir)/Input
+        INCLUDEPATH += $$system(pkg-config qmmp-1 --variable=prefix)/include
+
+        plugin.path = $${PLUGIN_DIR}
+        plugin.files = lib$${TARGET}.so
+        INSTALLS += plugin
+    }
 }

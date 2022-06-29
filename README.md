@@ -1,4 +1,4 @@
-This is a plugin for Qmmp (1.4.0 or greater) which supports TFMX file.
+This is a plugin for Qmmp (1.6.0 or greater) which supports TFMX file.
 (Final Music System Tracker Module File)
 
 The following packages are required, including development headers,
