@@ -4,7 +4,7 @@ QMAKE_CFLAGS += -std=gnu11
 HEADERS += decodertfmxfactory.h \
            decoder_tfmx.h \
            tfmxhelper.h
-    
+
 SOURCES += decodertfmxfactory.cpp \
            decoder_tfmx.cpp \
            tfmxhelper.cpp \
