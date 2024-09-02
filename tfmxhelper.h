@@ -27,6 +27,14 @@ extern "C" {
 #include <libtfmx/tfmx_iface.h>
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#  include <QRegularExpression>
+#  define RegularExpression QRegularExpression
+#else
+#  include <QRegExp>
+#  define RegularExpression QRegExp
+#endif
+
 /*!
  * @author Greedysky <greedysky@163.com>
  */
