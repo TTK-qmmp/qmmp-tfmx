@@ -1,5 +1,9 @@
-QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS += -std=gnu11
+greaterThan(QT_MAJOR_VERSION, 5){
+    QMAKE_CXXFLAGS += -std=c++17
+}else{
+    QMAKE_CXXFLAGS += -std=c++11
+}
 
 HEADERS += decodertfmxfactory.h \
            decoder_tfmx.h \
