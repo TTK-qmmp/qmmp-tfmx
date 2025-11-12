@@ -8,17 +8,47 @@ greaterThan(QT_MAJOR_VERSION, 5){
 
 HEADERS += decodertfmxfactory.h \
            decoder_tfmx.h \
-           tfmxhelper.h
+           tfmxhelper.h \
+           settingsdialog.h
 
 SOURCES += decodertfmxfactory.cpp \
            decoder_tfmx.cpp \
            tfmxhelper.cpp \
-           libtfmx/tfmx_audio.c \
-           libtfmx/tfmx_iface.c \
-           libtfmx/tfmx_loader.c \
-           libtfmx/tfmx_player.c \
-           libtfmx/tfmx_state.c \
-           libtfmx/unsqsh.c
+           settingsdialog.CPP \
+           libtfmx/CRCLight.cpp \
+           libtfmx/Decoder.cpp \
+           libtfmx/DecoderProxy.cpp \
+           libtfmx/Dump.cpp \
+           libtfmx/LamePaulaMixer.cpp \
+           libtfmx/LamePaulaVoice.cpp \
+           libtfmx/PaulaVoice.cpp \
+           libtfmx/tfmxaudiodecoder.cpp \
+           libtfmx/Chris/TFMXDecoder.cpp \
+           libtfmx/Chris/Macro.cpp \
+           libtfmx/Chris/Modulation.cpp \
+           libtfmx/Chris/Pattern.cpp \
+           libtfmx/Chris/Sequencer.cpp \
+           libtfmx/Chris/Songs.cpp \
+           libtfmx/Chris/ByChecksum.cpp \
+           libtfmx/Chris/SamplesFile.cpp \
+           libtfmx/Chris/MergedFiles.cpp \
+           libtfmx/Jochen/HippelDecoder.cpp \
+           libtfmx/Jochen/Analyze.cpp \
+           libtfmx/Jochen/COSO.cpp \
+           libtfmx/Jochen/Envelope.cpp \
+           libtfmx/Jochen/FC.cpp \
+           libtfmx/Jochen/Instrument.cpp \
+           libtfmx/Jochen/MCMD.cpp \
+           libtfmx/Jochen/ModPack.cpp \
+           libtfmx/Jochen/Portamento.cpp \
+           libtfmx/Jochen/Probe.cpp \
+           libtfmx/Jochen/SMOD.cpp \
+           libtfmx/Jochen/TFMX7V.cpp \
+           libtfmx/Jochen/TFMX.cpp \
+           libtfmx/Jochen/TraitsByChecksum.cpp \
+           libtfmx/Jochen/Vibrato.cpp
+
+FORMS += settingsdialog.ui
 
 INCLUDEPATH += $$PWD/libtfmx
 

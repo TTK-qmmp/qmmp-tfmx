@@ -22,10 +22,7 @@
 #include <QFileInfo>
 #include <QStringList>
 #include <qmmp/trackinfo.h>
-extern "C" {
-#include <libtfmx/tfmx.h>
-#include <libtfmx/tfmx_iface.h>
-}
+#include <libtfmx/tfmxaudiodecoder.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #  include <QRegularExpression>
@@ -47,10 +44,11 @@ public:
     void deinit();
     bool initialize();
 
-    inline qint64 totalTime() const { return (m_state->pdb.LastPos - m_state->pdb.FirstPos) * 5547; }
+    inline void seek(qint64 time) { tfmxdec_seek(m_input, time); }
+    inline qint64 totalTime() const { return tfmxdec_duration(m_input); }
 
     inline int bitrate() const { return 8; }
-    inline int sampleRate() const { return 44100; }
+    inline int sampleRate() const { return m_sampleRate; }
     inline int channels() const { return 2; }
     inline int depth() const { return 16; }
 
@@ -63,7 +61,8 @@ public:
 
 private:
     QString m_path;
-    TfmxState *m_state = nullptr;
+    int m_sampleRate;
+    void *m_input = nullptr;
 
 };
 

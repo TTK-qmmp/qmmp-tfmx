@@ -1,16 +1,24 @@
 #include "decodertfmxfactory.h"
 #include "tfmxhelper.h"
 #include "decoder_tfmx.h"
+#include "settingsdialog.h"
 
 #include <QMessageBox>
 
 bool DecoderTFMXFactory::canDecode(QIODevice *input) const
 {
-    char buf[9];
-    if(input->peek(buf, 9) != 9)
+    // At least 0xb80 is needed for some modules that start with machine code player.
+    constexpr int peekSize = 0xb80;
+    char buf[peekSize];
+    if(input->peek(buf, peekSize) != peekSize)
+    {
         return false;
-    return !memcmp(buf, "TFMXSONG", 8) || !memcmp(buf, "TFMX-MOD", 8) || !memcmp(buf, "TFMX ", 5) ||
-           !memcmp(buf, "TFMX-SONG", 9) || !memcmp(buf, "TFMX_SONG", 9);
+    }
+
+    void *ctx = tfmxdec_new();
+    const int v = tfmxdec_detect(ctx, buf, peekSize);
+    tfmxdec_delete(ctx);
+    return v;
 }
 
 DecoderProperties DecoderTFMXFactory::properties() const
@@ -19,8 +27,9 @@ DecoderProperties DecoderTFMXFactory::properties() const
     properties.name = tr("TFMX Plugin");
     properties.shortName = "tfmx";
     properties.filters << TFMXHelper::filters();
-    properties.description = "Final Music System Tracker Module File";
+    properties.description = "TFMX related Audio File";
     properties.protocols << "file" << "tfmx";
+    properties.hasSettings = true;
     properties.noInput = true;
     properties.hasAbout = true;
     return properties;
@@ -81,13 +90,12 @@ MetaDataModel* DecoderTFMXFactory::createMetaDataModel(const QString &path, bool
 #if (QMMP_VERSION_INT < 0x10700) || (0x20000 <= QMMP_VERSION_INT && QMMP_VERSION_INT < 0x20200)
 void DecoderTFMXFactory::showSettings(QWidget *parent)
 {
-    Q_UNUSED(parent);
+    (new SettingsDialog(parent))->show();
 }
 #else
 QDialog *DecoderTFMXFactory::createSettings(QWidget *parent)
 {
-    Q_UNUSED(parent);
-    return nullptr;
+    return new SettingsDialog(parent);
 }
 #endif
 

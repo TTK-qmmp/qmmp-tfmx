@@ -1,9 +1,10 @@
 This is a plugin for Qmmp (1.6.0 or greater) which supports TFMX file.
-(Final Music System Tracker Module File)
+[(TFMX related Audio File)](https://github.com/mschwendt/libtfmxaudiodecoder)
 
 The following packages are required, including development headers,
 which some vendors split into separate packages:
 
+- libtfmxaudiodecoder
 - qt4 for qmmp 0.x
 - qt5 for qmmp 1.x
 - qt6 for qmmp 2.x
