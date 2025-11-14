@@ -24,14 +24,6 @@
 #include <qmmp/trackinfo.h>
 #include <libtfmx/tfmxaudiodecoder.h>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#  include <QRegularExpression>
-#  define RegularExpression QRegularExpression
-#else
-#  include <QRegExp>
-#  define RegularExpression QRegExp
-#endif
-
 /*!
  * @author Greedysky <greedysky@163.com>
  */
@@ -58,6 +50,12 @@ public:
     QString cleanPath() const;
 
     static QStringList filters();
+
+    /*!
+     * Extracts path and track number \b track from URL \b url.
+     * URL example: "scheme:///path#track"
+     */
+    static QString pathFromUrl(const QString &url, int *track = nullptr);
 
 private:
     QString m_path;
