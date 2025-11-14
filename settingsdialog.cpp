@@ -13,7 +13,11 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         button->setFocusPolicy(Qt::NoFocus);
     }
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QSettings settings;
+#else
     QSettings settings(Qmmp::configFile(), QSettings::IniFormat);
+#endif
     settings.beginGroup("TFMX");
     m_ui.sampleRate->setCurrentIndex(settings.value("sample_rate", 1).toInt());
     m_ui.stereoPan->setValue(settings.value("panning", 75).toInt());
@@ -24,7 +28,11 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
 void SettingsDialog::accept()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QSettings settings;
+#else
     QSettings settings(Qmmp::configFile(), QSettings::IniFormat);
+#endif
     settings.beginGroup("TFMX");
     settings.setValue("sample_rate", m_ui.sampleRate->currentIndex());
     settings.setValue("panning", m_ui.stereoPan->value());

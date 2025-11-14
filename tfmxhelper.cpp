@@ -38,7 +38,11 @@ bool TFMXHelper::initialize()
 
     m_input = tfmxdec_new();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QSettings settings;
+#else
     QSettings settings(Qmmp::configFile(), QSettings::IniFormat);
+#endif
     settings.beginGroup("TFMX");
     switch(settings.value("sample_rate", 1).toInt())
     {
@@ -86,7 +90,11 @@ QList<TrackInfo*> TFMXHelper::createPlayList(TrackInfo::Parts parts)
         title = fin.suffix();
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QSettings settings;
+#else
     QSettings settings(Qmmp::configFile(), QSettings::IniFormat);
+#endif
     settings.beginGroup("TFMX");
     const int secs = settings.value("min_duration", 10).toInt();
     settings.endGroup();
