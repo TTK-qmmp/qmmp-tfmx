@@ -55,7 +55,7 @@ bool TFMXHelper::initialize()
     tfmxdec_mixer_init(m_input, sampleRate(), depth(), channels(), 0x0000, panning);
 
     const int track = m_path.section("#", -1).toInt() - 1;
-    if(!tfmxdec_init(m_input, (void*)buffer.constData(), buffer.length(), track))
+    if(!tfmxdec_init(m_input, (void*)buffer.constData(), buffer.length(), track < 0 ? 0 : track))
     {
         qWarning("TFMXHelper: tfmxdec_init error");
         return false;
