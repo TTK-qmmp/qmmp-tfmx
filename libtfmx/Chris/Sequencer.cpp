@@ -18,12 +18,9 @@
 // TFMX's sequencer is designed as a track table with N columns (= tracks).
 // Each track can assign patterns to any audio channel or execute a small
 // number of commands to affect either the track or song progression.
-
-#include "MyEndian.h"
-//#include "Debug.h"
-#if defined(DEBUG_RUN)
-#include "Dump.h"
-#endif
+//
+// Some modules use the LOOP command to escape from their initial start/end
+// range within the track table.
 
 namespace tfmxaudiodecoder {
 
@@ -51,7 +48,7 @@ void TFMXDecoder::processTrackStep() {
 
         udword stepOffset = offsets.trackTable+(sequencer.step.current<<4);
 #if defined(DEBUG_RUN)
-        cout << "# Step = " << hex << setw(4) << setfill('0') << sequencer.step.current << " at 0x" << (int)stepOffset << endl;
+        cout << "# Step = " << hexW(sequencer.step.current) << " at 0x" << tohex(stepOffset) << endl;
 #endif
         // 0xEFFE is the prefix of a track command.
         if ( 0xeffe == readBEuword(pBuf,stepOffset) ) {
@@ -85,8 +82,8 @@ void TFMXDecoder::processTrackStep() {
                 tr.PT = pBuf[stepOffset++];
                 tr.TR = pBuf[stepOffset++];
 #if defined(DEBUG_RUN)
-                cout << hex << setw(2) << (int)(tr.PT&255) << ' '
-                     << hex << setw(2) << (int)(tr.TR&255) << " | ";
+                cout << hexB(tr.PT&255) << ' '
+                     << hexB(tr.TR&255) << " | ";
 #endif
                 if (tr.PT < 0x80) {
                     tr.pattern.offset = getPattOffset(tr.PT);

@@ -116,17 +116,8 @@ QList<TrackInfo*> TFMXHelper::createPlayList(TrackInfo::Parts parts)
                 info->setValue(Qmmp::TITLE, title);
             }
 
-            v = tfmxdec_get_artist(m_input);
-            if(v && strlen(v) > 0)
-            {
-                info->setValue(Qmmp::ARTIST, v);
-            }
-
-            v = tfmxdec_get_game(m_input);
-            if(v && strlen(v) > 0)
-            {
-                info->setValue(Qmmp::ALBUM, v);
-            }
+            info->setValue(Qmmp::ARTIST, tfmxdec_get_artist(m_input));
+            info->setValue(Qmmp::ALBUM, tfmxdec_get_game(m_input));
             info->setValue(Qmmp::TRACK, i);
         }
 
