@@ -9,16 +9,19 @@ greaterThan(QT_MAJOR_VERSION, 5){
 HEADERS += decodertfmxfactory.h \
            decoder_tfmx.h \
            tfmxhelper.h \
+           tfmxmetadatamodel.h \
            settingsdialog.h
 
 SOURCES += decodertfmxfactory.cpp \
            decoder_tfmx.cpp \
            tfmxhelper.cpp \
-           settingsdialog.CPP \
+           tfmxmetadatamodel.cpp \
+           settingsdialog.cpp \
            libtfmx/CRCLight.cpp \
            libtfmx/Decoder.cpp \
            libtfmx/DecoderProxy.cpp \
            libtfmx/Dump.cpp \
+           libtfmx/Filter.cpp \
            libtfmx/LamePaulaMixer.cpp \
            libtfmx/LamePaulaVoice.cpp \
            libtfmx/PaulaVoice.cpp \

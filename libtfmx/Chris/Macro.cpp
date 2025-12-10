@@ -67,7 +67,7 @@ void TFMXDecoder::dumpMacros() {
             int cmd = 0x3f & pBuf[macroStart];
             cout << "  " << hexW(step)
                  << ' ' << hexB(cmd)
-                 << ' ' << std::setw(6) << (int)(0x00ffffff&readBEudword(pBuf,macroStart))
+                 << ' ' << hex << std::setw(6) << std::setfill('0') << (int)(0x00ffffff&readBEudword(pBuf,macroStart))
                  << ' ' << MacroDefs[cmd]->text << endl;
             if (cmd == 7) {
                 break;
@@ -377,6 +377,7 @@ void TFMXDecoder::macroFunc_StopSample_sub(VoiceVars& voice) {
     voice.ch->off();
     macroEvalAgain = true;
 
+    // The variant that also does AddVolume/SetVolume.
     if (cmd.cd == 0) {
         if (cmd.ee == 0) {
             return;

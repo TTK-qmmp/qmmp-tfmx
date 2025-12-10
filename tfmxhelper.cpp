@@ -44,14 +44,23 @@ bool TFMXHelper::initialize()
     QSettings settings(Qmmp::configFile(), QSettings::IniFormat);
 #endif
     settings.beginGroup("TFMX");
-    m_sampleRate = settings.value("sample_rate", 44100).toInt();
+    switch(settings.value("sample_rate", 1).toInt())
+    {
+        case 0: m_sampleRate = 22050; break;
+        case 1: m_sampleRate = 44100; break;
+        case 2: m_sampleRate = 48000; break;
+        default: m_sampleRate = 44100; break;
+    }
     const int panning = settings.value("panning", 75).toInt();
     const int secs = settings.value("min_duration", 10).toInt();
-    const bool flag = settings.value("end_shorts", true).toBool();
+    const bool endshorts = settings.value("end_shorts", true).toBool();
+    const bool filter = settings.value("filter", false).toBool();
     settings.endGroup();
 
     tfmxdec_set_path(m_input, qPrintable(path));
-    tfmxdec_end_shorts(m_input, flag ? 1 : 0, secs);
+    tfmxdec_end_shorts(m_input, endshorts ? 1 : 0, secs);
+
+    tfmxdec_set_filtering(m_input, filter ? 1 : 0);
     tfmxdec_mixer_init(m_input, sampleRate(), depth(), channels(), 0x0000, panning);
 
     const int track = m_path.section("#", -1).toInt() - 1;

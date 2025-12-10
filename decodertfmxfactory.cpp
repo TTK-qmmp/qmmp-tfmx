@@ -2,6 +2,7 @@
 #include "tfmxhelper.h"
 #include "decoder_tfmx.h"
 #include "settingsdialog.h"
+#include "tfmxmetadatamodel.h"
 
 #include <QMessageBox>
 
@@ -73,9 +74,8 @@ QList<TrackInfo*> DecoderTFMXFactory::createPlayList(const QString &path, TrackI
 
 MetaDataModel* DecoderTFMXFactory::createMetaDataModel(const QString &path, bool readOnly)
 {
-    Q_UNUSED(path);
     Q_UNUSED(readOnly);
-    return nullptr;
+    return new TFMXMetaDataModel(path);
 }
 
 #if (QMMP_VERSION_INT < 0x10700) || (0x20000 <= QMMP_VERSION_INT && QMMP_VERSION_INT < 0x20200)
