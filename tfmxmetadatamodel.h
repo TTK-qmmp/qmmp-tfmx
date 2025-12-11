@@ -28,7 +28,7 @@ class TFMXHelper;
  */
 class TFMXMetaDataModel : public MetaDataModel
 {
-    Q_DECLARE_TR_FUNCTIONS(XMPMetaDataModel)
+    Q_DECLARE_TR_FUNCTIONS(TFMXMetaDataModel)
 public:
     explicit TFMXMetaDataModel(const QString &path);
 
