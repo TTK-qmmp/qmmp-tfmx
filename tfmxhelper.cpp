@@ -44,7 +44,7 @@ bool TFMXHelper::initialize()
     QSettings settings(Qmmp::configFile(), QSettings::IniFormat);
 #endif
     settings.beginGroup("TFMX");
-    m_sampleRate = settings.value("sample_rate", 44100).toInt());
+    m_sampleRate = settings.value("sample_rate", 44100).toInt();
     const int panning = settings.value("panning", 75).toInt();
     const int secs = settings.value("min_duration", 10).toInt();
     const bool endshorts = settings.value("end_shorts", true).toBool();
@@ -164,24 +164,28 @@ QStringList TFMXHelper::filters()
 
 QString TFMXHelper::pathFromUrl(const QString &url, int *track)
 {
-    QString path = url;
-    int index = path.indexOf("://");
-    if(index > 0)
-        path.remove(0, index + 3);
-
-    QString trackStr = path.section(QLatin1Char('#'), -1);
-    bool ok = false;
-    int t = trackStr.toInt(&ok);
-    if(ok)
+    if(track)
     {
-        if(track)
-            *track = t;
-
-        index = path.lastIndexOf(QLatin1Char('#'));
-        path.remove(index, path.size() - index);
-    }
-    else if(track)
         *track = -1;
+    }
 
+    const int prefix = url.indexOf("://");
+    if(prefix < 0)
+    {
+        return url;
+    }
+
+    const int suffix = url.lastIndexOf(QLatin1Char('#'));
+    if(suffix < 0)
+    {
+        return url;
+    }
+
+    const QString &path = url.mid(prefix + 3, suffix - prefix - 3);
+    const QString &trackStr = url.mid(suffix + 1);
+    if(track)
+    {
+        *track = trackStr.toInt();
+    }
     return path;
 }
