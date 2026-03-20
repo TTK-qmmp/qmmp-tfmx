@@ -71,9 +71,9 @@ qint64 TFMXHelper::read(unsigned char *data, qint64 maxSize)
     return tfmxdec_song_end(m_input) ? 0 : maxSize;
 }
 
-QList<TrackInfo*> TFMXHelper::createPlayList(TrackInfo::Parts parts)
+TrackInfoList TFMXHelper::createPlayList(TrackInfo::Parts parts)
 {
-    QList<TrackInfo*> playlist;
+    TrackInfoList playlist;
     if(!m_input)
     {
         return playlist;
@@ -105,7 +105,11 @@ QList<TrackInfo*> TFMXHelper::createPlayList(TrackInfo::Parts parts)
             continue;
         }
 
-        TrackInfo *info = new TrackInfo();
+#if QMMP_VERSION_INT < 0x20400
+        TrackInfo *raw(new TrackInfo), *info = raw;
+#else
+        TrackInfo raw, *info = &raw;
+#endif
         if(parts & TrackInfo::MetaData)
         {
             const char *v = tfmxdec_get_title(m_input);
@@ -134,8 +138,9 @@ QList<TrackInfo*> TFMXHelper::createPlayList(TrackInfo::Parts parts)
 
         info->setPath("tfmx://" + cleanPath() + QString("#%1").arg(i));
         info->setDuration(duration);
-        playlist << info;
+        playlist << raw;
     }
+
     return playlist;
 }
 

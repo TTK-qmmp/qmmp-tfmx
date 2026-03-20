@@ -24,6 +24,12 @@
 #include <qmmp/trackinfo.h>
 #include <libtfmx/tfmxaudiodecoder.h>
 
+#if QMMP_VERSION_INT < 0x20400
+using TrackInfoList = QList<TrackInfo*>;
+#else
+using TrackInfoList = QList<TrackInfo>;
+#endif
+
 /*!
  * @author Greedysky <greedysky@163.com>
  */
@@ -52,7 +58,7 @@ public:
     inline int voices() const { return tfmxdec_voices(m_input); }
     inline int voice(int i) const { return tfmxdec_get_voice_volume(m_input, i); }
 
-    QList<TrackInfo*> createPlayList(TrackInfo::Parts parts);
+    TrackInfoList createPlayList(TrackInfo::Parts parts);
     QString cleanPath() const;
 
     static QStringList filters();

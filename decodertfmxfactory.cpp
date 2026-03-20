@@ -1,5 +1,4 @@
 #include "decodertfmxfactory.h"
-#include "tfmxhelper.h"
 #include "decoder_tfmx.h"
 #include "settingsdialog.h"
 #include "tfmxmetadatamodel.h"
@@ -42,33 +41,30 @@ Decoder *DecoderTFMXFactory::create(const QString &path, QIODevice *input)
     return new DecoderTFMX(path);
 }
 
-QList<TrackInfo*> DecoderTFMXFactory::createPlayList(const QString &path, TrackInfo::Parts parts, QStringList *ignoredPaths)
+TrackInfoList DecoderTFMXFactory::createPlayList(const QString &path, TrackInfo::Parts parts, QStringList *ignoredPaths)
 {
     if(path.contains("://")) //is it one track?
     {
         int track = -1;
         const QString &filePath = TFMXHelper::pathFromUrl(path, &track);
 
-        QList<TrackInfo*> playlist = createPlayList(filePath, parts, ignoredPaths);
+        TrackInfoList playlist = createPlayList(filePath, parts, ignoredPaths);
         if(playlist.isEmpty() || track <= 0 || track > playlist.count())
         {
-            qDeleteAll(playlist);
             playlist.clear();
             return playlist;
         }
 
-        TrackInfo *info = playlist.takeAt(track - 1);
-        qDeleteAll(playlist);
-        playlist.clear();
-        return playlist << info;
+        return {playlist.takeAt(track - 1)};
     }
 
     TFMXHelper helper(path);
     if(!helper.initialize())
     {
         qWarning("DecoderTFMXFactory: unable to open file");
-        return QList<TrackInfo*>();
+        return {};
     }
+
     return helper.createPlayList(parts);
 }
 
