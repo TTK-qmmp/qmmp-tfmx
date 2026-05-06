@@ -52,21 +52,6 @@ TFMXDecoder::~TFMXDecoder() {
 
 // Assign default values to essential runtime variables.
 void TFMXDecoder::reset() {
-    songEnd = false;
-    songPosCurrent = 0;
-    tickFPadd = 0;
-    triggerRestart = false;
-
-    sequencer.step.next = false;
-    sequencer.loops = -1;
-    for (int step = 0; step < TRACK_STEPS_MAX; step++ ) {
-        sequencer.stepSeenBefore[step] = false;
-    }
-
-    fade.active = false;
-    fade.volume = fade.target = 64;
-    fade.delta = 0;
-
     cmd.aa = cmd.bb = cmd.cd = cmd.ee = 0;
 
     for (ubyte t=0; t<sequencer.tracks; t++) {
@@ -77,7 +62,6 @@ void TFMXDecoder::reset() {
         tr.pattern.wait = 0;
         tr.pattern.loops = -1;
     }
-
     for (ubyte v=0; v<voices; v++) {
         VoiceVars& voice = voiceVars[v];
         
@@ -103,7 +87,8 @@ void TFMXDecoder::reset() {
         voice.macro.step = 0;
         voice.macro.skip = true;
         voice.macro.loop = 0xff;
-        voice.macro.extraWait = false;
+        voice.macro.extraWait = true;
+        voice.macro.delayedOff = false;
         
         voice.sid.targetOffset = 0x100*v + 4;
         voice.sid.targetLength = 0;
@@ -282,6 +267,20 @@ bool TFMXDecoder::init(void *data, udword length, int songNumber) {
     // TFMX clears the first dword here for one shot samples e.g.
     pBuf[offsets.silence] = pBuf[offsets.silence+1] = pBuf[offsets.silence+2] = pBuf[offsets.silence+3] = 0;
 
+    // Evaluate the compress identification fields at $0A and $0C.
+    // In rare cases that part of the header has been overwritten
+    // and is invalid.
+    udword compressHint = readBEudword(pBuf,h+0x0c);
+    if (compressHint!=0 && readBEuword(pBuf,h+0x0a)==1) {
+        offsets.trackTableEnd = offsets.trackTable + compressHint - (0x800-0x10);
+        if (offsets.trackTableEnd>getPattOffset(0)) {
+            offsets.trackTableEnd = getPattOffset(0);
+        }
+    }
+    else {
+        offsets.trackTableEnd = getPattOffset(0);
+    }
+
 // ----------
 
     // Defaults only. Detection further below.
@@ -302,6 +301,8 @@ bool TFMXDecoder::init(void *data, udword length, int songNumber) {
     variant.portaOverride = false;
     variant.noNoteDetune = false;
     variant.bpmSpeed5 = false;
+    variant.noAddBeginCount = false;
+    variant.noTrackMute = false;
     
     PattCmdFuncs[0] = &TFMXDecoder::pattCmd_End;
     PattCmdFuncs[1] = &TFMXDecoder::pattCmd_Loop;
@@ -444,7 +445,31 @@ bool TFMXDecoder::init(void *data, udword length, int songNumber) {
 // With an initialized decoder, calling this should (re)start the
 // decoder currently chosen song.
 void TFMXDecoder::restart() {
-    reset();  // state variables
+    reset();
+    softRestart();
+}
+
+void TFMXDecoder::softRestart() {
+    songEnd = false;
+    songPosCurrent = 0;
+    tickFPadd = 0;
+    triggerRestart = false;
+
+    sequencer.step.next = false;
+    sequencer.loops = -1;
+    for (int step = 0; step < TRACK_STEPS_MAX; step++ ) {
+        sequencer.stepSeenBefore[step] = false;
+    }
+
+    // Not all songs are designed for looping cleanly, so aid them.
+    for (ubyte v=0; v<voices; v++) {
+        VoiceVars& voice = voiceVars[v];
+        voice.keyUp = true;
+        voice.volume = voice.outputVolume = 0;
+    }
+    fade.active = false;
+    fade.volume = fade.target = 64;
+    fade.delta = 0;
 
     uword so = vSongs[admin.startSong]<<1;
     sequencer.step.first = sequencer.step.current = readBEuword(pBuf,offsets.header+0x100+so);
@@ -468,6 +493,7 @@ void TFMXDecoder::restart() {
 
 void TFMXDecoder::setTFMXv1() {
     formatName = FORMAT_NAME;
+    variant.noAddBeginCount = true;
     variant.vibratoUnscaled = true;
     variant.finetuneUnscaled = true;
     variant.portaUnscaled = false;
@@ -507,7 +533,9 @@ void TFMXDecoder::dumpModule() {
     cout << getFormatName() << endl;
     cout << "Header at 0x" << tohex(offsets.header) << endl;
     cout << "Macro offsets at 0x" << tohex(offsets.macros) << endl;
+    cout << "1st macro at 0x" << tohex(getMacroOffset(0)) << endl;
     cout << "Pattern offsets at 0x" << tohex(offsets.patterns) << endl;
+    cout << "1st pattern at 0x" << tohex(getPattOffset(0)) << endl;
     cout << "Track table (sequencer) at 0x" << tohex(offsets.trackTable) << endl;
     cout << "Sample data at 0x" << tohex(offsets.sampleData) << endl;
     cout << "Songs: " << dec << getSongs() << endl;
@@ -583,6 +611,10 @@ void TFMXDecoder::processPTTR(Track& tr) {
     // PT >= 0x80 < 0x90 : continue pattern from previous step
     // PT >= 0x90 : track not used
     if (tr.PT < 0x90) {
+        if (tr.pattern.offset == 0) {  // track didn't set valid PT before
+            tr.PT = 0xff;
+            return;
+        }
         if (tr.pattern.wait == 0) {
             processPattern(tr);
         }
@@ -669,23 +701,22 @@ int TFMXDecoder::run() {
                         break;
                     }
                 }  // next track
-                // This is a state where track sequencer cannot advance.
-                if ( !sequencer.step.next && countInactive == sequencer.tracks) {
-                    songEnd = true;
-                    triggerRestart = true;
+                // These are states where track sequencer cannot advance.
+                if ( !sequencer.step.next ) {
+                    if ( (countInactive == sequencer.tracks) ||
+                         (countInactive+countInfinite) == sequencer.tracks ) {
+                        songEnd = true;
+                        triggerRestart = true;
+                    }
                 }
-                if ( !sequencer.step.next && (countInactive+countInfinite) == sequencer.tracks) {
-                    songEnd = true;
-                    triggerRestart = true;
+                // Loop on end?
+                if (songEnd && loopMode) {
+                    songEnd = false;
+                    if (triggerRestart) {
+                        softRestart();
+                    }
                 }
             } while (sequencer.step.next);
-        }
-    }
-    if (songEnd && loopMode) {
-        songEnd = false;
-        if (triggerRestart) {
-            restart();
-            triggerRestart = false;
         }
     }
     

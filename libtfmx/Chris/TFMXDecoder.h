@@ -46,6 +46,7 @@ class TFMXDecoder : public Decoder {
     void setPaulaVoice(ubyte,PaulaVoice*) override;
 
  private:
+    void softRestart();
     void reset();
     void adjustTraitsPost();
     void dumpMacros();
@@ -72,7 +73,7 @@ class TFMXDecoder : public Decoder {
     std::vector<ubyte> vSongs;
     udword songPosCurrent;
     int voices;
-    bool loopMode, triggerRestart;
+    bool triggerRestart;
 
     struct ModuleOffsets {
         udword header;
@@ -81,6 +82,7 @@ class TFMXDecoder : public Decoder {
         udword macros;
         udword sampleData;
         udword silence;
+        udword trackTableEnd;
     } offsets;
 
     struct Admin {
@@ -153,6 +155,7 @@ class TFMXDecoder : public Decoder {
             sword wait;
             ubyte loop;
             bool skip, extraWait;
+            bool delayedOff;
         } macro;
         
         sword waitOnDMACount;
@@ -540,6 +543,8 @@ class TFMXDecoder : public Decoder {
         bool portaOverride;
         bool noNoteDetune;
         bool bpmSpeed5;
+        bool noAddBeginCount;
+        bool noTrackMute;
     } variant;
 
     struct {

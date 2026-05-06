@@ -24,6 +24,7 @@ udword TFMXDecoder::getPattOffset(ubyte pt) {
 
 void TFMXDecoder::processPattern(Track& tr) {
 #if defined(DEBUG_RUN)
+    dumpTimestamp(songPosCurrent);
     cout << "  processPattern() at 0x" << tohex(tr.pattern.offset) << endl;
 #endif
     int evalMaxLoops = RECURSE_LIMIT;  // NB! Around 8 would suffice.
@@ -88,13 +89,13 @@ void TFMXDecoder::pattCmd_End(Track& tr) {
     cout << "End >>>>>>>>--Next track  step--" << endl;
 #endif
     tr.PT = 0xff;
+    if (sequencer.step.current != sequencer.step.last) {
+        sequencer.step.current++;
+    }
     if (sequencer.step.current == sequencer.step.last) {
         songEnd = true;
         triggerRestart = true;
         return;
-    }
-    else {
-        sequencer.step.current++;
     }
     processTrackStep();
     sequencer.step.next = true;

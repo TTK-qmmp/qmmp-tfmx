@@ -84,6 +84,10 @@ void TFMXDecoder::dumpMacros() {
 // ----------------------------------------------------------------------
 
 void TFMXDecoder::processMacroMain(VoiceVars& voice) {
+    if (voice.macro.delayedOff) {
+        voice.ch->off();
+        voice.macro.delayedOff = false;
+    }
     if (voice.macro.skip) {
         return;
     }
@@ -107,7 +111,7 @@ void TFMXDecoder::processMacroMain(VoiceVars& voice) {
              << tohex(voice.macro.offset) << '/'
              << hexW(voice.macro.step) << ' '
              << hexB(command) << ' '
-             << std::setw(6) << (int)(0x00ffffff&makeDword(0,cmd.bb,cmd.cd,cmd.ee));
+             << std::setw(6) << std::setfill('_') << (int)(0x00ffffff&makeDword(0,cmd.bb,cmd.cd,cmd.ee));
 #endif
         macroCmdUsed[command&0x3f] = true;
         MacroDef* pM = MacroDefs[command&0x3f];
@@ -377,13 +381,16 @@ void TFMXDecoder::macroFunc_StopSample(VoiceVars& voice) {
 
 void TFMXDecoder::macroFunc_StopSample_sub(VoiceVars& voice) {
     voice.macro.step++;
-    voice.ch->off();
-    macroEvalAgain = true;
 
     // Rare variants of TFMX implement it as a count value, but no module
     // sets the value to anything above 1.
     if (cmd.bb != 0) {
         voice.macro.extraWait = false;
+        voice.macro.delayedOff = true;
+    }
+    else {
+        voice.ch->off();
+        macroEvalAgain = true;
     }
     // The variant that also does AddVolume/SetVolume.
     if (cmd.cd == 0) {
