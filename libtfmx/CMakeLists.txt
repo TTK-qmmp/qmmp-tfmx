@@ -27,6 +27,7 @@ set(SOURCES
     Chris/ByChecksum.cpp
     Chris/SamplesFile.cpp
     Chris/MergedFiles.cpp
+    Chris/DNS/DNSDecoder.cpp
     Jochen/HippelDecoder.cpp
     Jochen/Analyze.cpp
     Jochen/COSO.cpp
