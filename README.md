@@ -1,4 +1,4 @@
-This is a plugin for Qmmp (1.6.0 or greater) which supports TFMX file.
+This is an inut plugin for Qmmp (1.6.0 or later) that supports TFMX files.
 
 Based on [libtfmxaudiodecoder](https://github.com/mschwendt/libtfmxaudiodecoder) (TFMX related audio module).
 
